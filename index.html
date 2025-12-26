@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>🐰 Quyoncha qishga tayyorlanmoqda</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h2>🐰 Quyoncha qishga tayyorlanmoqda</h2>
+
+<div id="game-board"></div>
+
+<div class="controls">
+  <button id="startBtn">▶️ O‘yinni boshlash</button>
+  <button id="diceBtn" disabled>🎲 Kubik tashlash</button>
+  <button id="wheelBtn" disabled>🎡 Omad barabanini aylantirish</button>
+</div>
+
+<p id="info">Avval o‘yinni boshlang</p>
+
+<div id="dice-display">🎲</div>
+
+<!-- ===== BARABAN OVERLAY ===== -->
+<div id="wheel-overlay" class="hidden">
+  <div id="wheel-center">
+
+    <!-- POINTER (QIMIRLAMAYDI) -->
+    <div id="wheel-pointer"></div>
+
+    <!-- AYLANADIGAN QISM -->
+    <div id="wheel-rotator">
+      <svg id="wheel" viewBox="0 0 300 300">
+        <g id="slices"></g>
+        <circle cx="150" cy="150" r="30" fill="#fff"/>
+        <text
+  x="150"
+  y="150"
+  text-anchor="middle"
+  dominant-baseline="middle"
+  font-size="18"
+>🎯</text>
+
+      </svg>
+    </div>
+
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

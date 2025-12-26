@@ -1,0 +1,127 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #eef6ff;
+  margin: 0;
+  padding: 10px;
+}
+
+/* ===== BOARD ===== */
+#game-board {
+  width: 320px;
+  height: 320px;
+  margin: 15px auto;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border: 3px solid #333;
+  background: #fff;
+}
+
+.cell {
+  border: 1px solid #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+/* ===== CONTROLS ===== */
+.controls button {
+  margin: 5px;
+  padding: 8px 14px;
+  font-size: 15px;
+}
+
+#dice-display {
+  font-size: 40px;
+  margin: 10px;
+}
+
+/* ===== OVERLAY ===== */
+#wheel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+#wheel-center {
+  width: 420px;
+  height: 420px;
+  position: relative; /* 👈 POINTER SHU YERGA NISBATAN */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== POINTER ===== */
+#wheel-pointer {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 18px solid red;
+  z-index: 2000;
+}
+
+/* ===== ROTATOR (FAQAT SHU AYLANADI) ===== */
+#wheel-rotator {
+  width: 420px;
+  height: 420px;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+#wheel {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hidden {
+  display: none !important;
+}
+/* Oddiy sakrash (har bir katak uchun) */
+@keyframes hop {
+  0%   { transform: translateY(0) scale(1); }
+  40%  { transform: translateY(-12px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Yakuniy, sezilarli sakrash */
+@keyframes finalHop {
+  0%   { transform: translateY(0) scale(1); }
+  40%  { transform: translateY(-22px) scale(1.15); }
+  70%  { transform: translateY(0) scale(0.95); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.rabbit-hop {
+  animation: hop 300ms ease-out;
+}
+
+.rabbit-final {
+  animation: finalHop 500ms cubic-bezier(.17,.67,.38,1);
+}
+
+@keyframes sparkle {
+  0%   { opacity: 0; transform: scale(0.5); }
+  50%  { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+.sparkle {
+  position: absolute;
+  font-size: 20px;
+  animation: sparkle 600ms ease-out forwards;
+  pointer-events: none;
+}
