@@ -1,8 +1,8 @@
 // ===== ELEMENTS =====
 const board = document.getElementById("game-board");
 const startBtn = document.getElementById("startBtn");
-const diceBtn = document.getElementById("diceBtn");
 const wheelBtn = document.getElementById("wheelBtn");
+const diceBtn = document.getElementById("dice-btn");
 const info = document.getElementById("info");
 const diceDisplay = document.getElementById("dice-display");
 
@@ -15,23 +15,16 @@ const spinSound = new Audio("spin.mp3");
 spinSound.loop = true;
 
 const landSound = new Audio("land.mp3");
-landSound.volume = 0.6; // yumshoqroq chiqsin
+landSound.volume = 0.6;
 
 // ===== GAME STATE =====
 const size = 8;
+const finishIndex = size * size - 1;
+
 let rabbitIndex = 0;
 let gameStarted = false;
 let isMoving = false;
-
-// ===== SPECIAL CELLS =====
-const specialCells = {
-  carrot: [6, 18, 29],   // 🥕 +2 qadam
-  wolf:   [11, 23, 37],  // 🐺 -2 qadam
-  ice:    [15, 31]       // ❄️ 1 yurish o'tkazib yuboriladi
-};
-
-let skipNextTurn = false;
-
+let diceTurnsLeft = 0;
 
 // ===== WHEEL DATA =====
 const wheelItems = ["1","5","6","8","10","Omadsiz","2x","4x"];
@@ -43,41 +36,9 @@ function createBoard() {
   for (let i = 0; i < size * size; i++) {
     const c = document.createElement("div");
     c.className = "cell";
-
-    if (specialCells.carrot.includes(i)) c.textContent = "🥕";
-    if (specialCells.wolf.includes(i)) c.textContent = "🐺";
-    if (specialCells.ice.includes(i)) c.textContent = "❄️";
-
     board.appendChild(c);
   }
 }
-
-function checkSpecialCell() {
-  if (specialCells.carrot.includes(rabbitIndex)) {
-    info.textContent = "🥕 Sabzi! +2 qadam!";
-    moveStepByStep(2);
-    return true;
-  }
-
-  if (specialCells.wolf.includes(rabbitIndex)) {
-    info.textContent = "🐺 Bo‘ri! −2 qadam!";
-    rabbitIndex = Math.max(0, rabbitIndex - 2);
-    drawRabbit(true);
-    checkSpecialCell();
-
-    return true;
-  }
-
-  if (specialCells.ice.includes(rabbitIndex)) {
-    info.textContent = "❄️ Muz! Keyingi yurish o'tkazib yuboriladi!";
-    skipNextTurn = true;
-    return true;
-  }
-
-  return false;
-}
-
-
 
 // ===== RABBIT DRAW =====
 function drawRabbit(isFinal = false) {
@@ -93,8 +54,6 @@ function drawRabbit(isFinal = false) {
   if (isFinal) {
     cell.classList.add("rabbit-final");
     showSparkle(cell);
-
-    // 🔊 Faqat oxirgi sakrashda
     landSound.currentTime = 0;
     landSound.play();
   } else {
@@ -108,19 +67,17 @@ function moveStepByStep(steps) {
   let moved = 0;
 
   const interval = setInterval(() => {
-    const isLastStep = (moved === steps - 1);
+    const isLastStep = moved === steps - 1;
 
-    if (rabbitIndex < size * size - 1) {
+    if (rabbitIndex < finishIndex) {
       rabbitIndex++;
     }
 
     if (isLastStep) {
       drawRabbit(true);
       clearInterval(interval);
-
       isMoving = false;
-      diceBtn.disabled = false;
-      wheelBtn.disabled = false;
+      checkFinish();
       return;
     }
 
@@ -129,32 +86,50 @@ function moveStepByStep(steps) {
   }, 350);
 }
 
+// ===== FINISH =====
+function checkFinish() {
+  if (rabbitIndex === finishIndex) {
+    info.textContent = "🎉 Tabriklaymiz! Quyoncha qishga tayyor!";
+    diceBtn.classList.add("dice-disabled");
+    wheelBtn.disabled = true;
+    return;
+  }
+
+  diceBtn.classList.remove("dice-disabled");
+  wheelBtn.disabled = false;
+}
+
 // ===== START =====
 startBtn.addEventListener("click", () => {
   createBoard();
   rabbitIndex = 0;
+  diceTurnsLeft = 0;
   drawRabbit();
+
   gameStarted = true;
-  diceBtn.disabled = false;
+  diceBtn.classList.add("dice-disabled");
   wheelBtn.disabled = false;
-  info.textContent = "O‘yin boshlandi!";
+  info.textContent = "🎡 Avval barabanni aylantiring";
 });
 
-// ===== DICE =====
+// ===== DICE (DOIRA) =====
 diceBtn.addEventListener("click", () => {
   if (!gameStarted || isMoving) return;
+  if (diceTurnsLeft <= 0) return;
 
-  if (skipNextTurn) {
-    info.textContent = "❄️ Muz sabab bu yurish o'tkazib yuborildi!";
-    skipNextTurn = false;
-    return;
-  }
-
+  diceTurnsLeft--;
   const d = Math.floor(Math.random() * 6) + 1;
   diceDisplay.textContent = d;
-  moveStepByStep(d);
-});
 
+  info.textContent = `🎲 Qolgan kubik: ${diceTurnsLeft}`;
+  moveStepByStep(d);
+
+  if (diceTurnsLeft === 0) {
+    diceBtn.classList.add("dice-disabled");
+    wheelBtn.disabled = false;
+    info.textContent = "🎡 Yana barabanni aylantiring";
+  }
+});
 
 // ===== DRAW WHEEL =====
 function drawWheel() {
@@ -198,9 +173,8 @@ drawWheel();
 wheelBtn.addEventListener("click", () => {
   if (!gameStarted || isMoving) return;
 
-  isMoving = true;
-  diceBtn.disabled = true;
   wheelBtn.disabled = true;
+  diceBtn.classList.add("dice-disabled");
 
   wheelOverlay.classList.remove("hidden");
   spinSound.currentTime = 0;
@@ -224,23 +198,24 @@ wheelBtn.addEventListener("click", () => {
 
     const rotation = finalDeg % 360;
     const corrected = (rotation + 90) % 360;
-    const index =
-      Math.floor((360 - corrected) / sliceDeg) % wheelItems.length;
-
+    const index = Math.floor((360 - corrected) / sliceDeg) % wheelItems.length;
     const value = wheelItems[index];
-    info.textContent = `🎯 Yutuq: ${value}`;
 
     if (!isNaN(value)) {
-      moveStepByStep(parseInt(value));
+      diceTurnsLeft += parseInt(value);
+      info.textContent = `🎡 ${value} ta kubik berildi`;
     } else if (value === "2x" || value === "4x") {
       const m = value === "2x" ? 2 : 4;
-      const d = Math.floor(Math.random() * 6) + 1;
-      moveStepByStep(d * m);
+      diceTurnsLeft *= m;
+      info.textContent = `✖️ ${m} barobar! Kubiklar: ${diceTurnsLeft}`;
     } else {
-      isMoving = false;
-      diceBtn.disabled = false;
-      wheelBtn.disabled = false;
+      info.textContent = "😅 Omadsiz aylanish";
     }
+
+    if (diceTurnsLeft > 0) {
+      diceBtn.classList.remove("dice-disabled");
+    }
+
   }, 9000);
 });
 
@@ -255,4 +230,3 @@ function showSparkle(cell) {
   cell.appendChild(s);
   setTimeout(() => s.remove(), 600);
 }
-
