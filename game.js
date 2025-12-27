@@ -1,4 +1,7 @@
 // ===== ELEMENTS =====
+document.addEventListener("DOMContentLoaded", () => {
+  // BUTUN KOD SHU YERDA
+
 const board = document.getElementById("game-board");
 const startBtn = document.getElementById("startBtn");
 const wheelBtn = document.getElementById("wheelBtn");
