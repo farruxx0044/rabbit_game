@@ -1,127 +1,142 @@
-body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background: #eef6ff;
-  margin: 0;
-  padding: 10px;
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
 }
 
-/* ===== BOARD ===== */
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #1e293b, #020617);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app {
+  width: 100%;
+  max-width: 420px;
+  padding: 16px;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
 #game-board {
-  width: 320px;
-  height: 320px;
-  margin: 15px auto;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-  border: 3px solid #333;
-  background: #fff;
+  gap: 4px;
+  margin: 12px 0;
 }
 
 .cell {
-  border: 1px solid #aaa;
+  background: #1e293b;
+  border-radius: 6px;
+  aspect-ratio: 1 / 1;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   font-size: 22px;
+  position: relative;
 }
 
-/* ===== CONTROLS ===== */
-.controls button {
-  margin: 5px;
-  padding: 8px 14px;
-  font-size: 15px;
-}
-
-#dice-display {
-  font-size: 40px;
-  margin: 10px;
-}
-
-/* ===== OVERLAY ===== */
-#wheel-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(5px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-#wheel-center {
-  width: 420px;
-  height: 420px;
-  position: relative; /* 👈 POINTER SHU YERGA NISBATAN */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ===== POINTER ===== */
-#wheel-pointer {
-  position: absolute;
-  top: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-bottom: 18px solid red;
-  z-index: 2000;
-}
-
-/* ===== ROTATOR (FAQAT SHU AYLANADI) ===== */
-#wheel-rotator {
-  width: 420px;
-  height: 420px;
-  transform-origin: 50% 50%;
-  will-change: transform;
-}
-
-#wheel {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.hidden {
-  display: none !important;
-}
-/* Oddiy sakrash (har bir katak uchun) */
-@keyframes hop {
-  0%   { transform: translateY(0) scale(1); }
-  40%  { transform: translateY(-12px) scale(1.05); }
-  100% { transform: translateY(0) scale(1); }
-}
-
-/* Yakuniy, sezilarli sakrash */
-@keyframes finalHop {
-  0%   { transform: translateY(0) scale(1); }
-  40%  { transform: translateY(-22px) scale(1.15); }
-  70%  { transform: translateY(0) scale(0.95); }
-  100% { transform: translateY(0) scale(1); }
+.cell.finish {
+  background: #facc15;
 }
 
 .rabbit-hop {
-  animation: hop 300ms ease-out;
+  animation: hop 0.3s ease;
 }
 
 .rabbit-final {
-  animation: finalHop 500ms cubic-bezier(.17,.67,.38,1);
+  animation: pulse 0.6s ease infinite alternate;
 }
 
-@keyframes sparkle {
-  0%   { opacity: 0; transform: scale(0.5); }
-  50%  { opacity: 1; transform: scale(1.2); }
-  100% { opacity: 0; transform: scale(1); }
+@keyframes hop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.15); }
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+#wheelBtn {
+  background: #38bdf8;
+}
+
+#startBtn {
+  background: #a855f7;
+  color: #fff;
+}
+
+#dice-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #fb7185;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.dice-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+#dice-display {
+  margin-top: 8px;
+  font-size: 18px;
+}
+
+#info {
+  margin-top: 8px;
+  font-size: 14px;
+  min-height: 18px;
+}
+
+/* WHEEL */
+#wheel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.hidden {
+  display: none;
 }
 
 .sparkle {
   position: absolute;
-  font-size: 20px;
-  animation: sparkle 600ms ease-out forwards;
-  pointer-events: none;
+  font-size: 16px;
+  animation: sparkle 0.6s ease;
+}
+
+@keyframes sparkle {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(2); }
 }
