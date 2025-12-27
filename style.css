@@ -140,3 +140,11 @@ button {
   from { opacity: 1; transform: scale(1); }
   to { opacity: 0; transform: scale(2); }
 }
+
+
+#game-board {
+  width: 100%;
+  max-width: 360px;
+  min-height: 360px;   /* 🔥 ENG MUHIM */
+  margin: 16px auto;
+}
