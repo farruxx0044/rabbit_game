@@ -2,85 +2,41 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8" />
-
-  <!-- iOS + Telegram uchun MUHIM -->
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-
-  <title>🐰 Quyoncha qishga tayyorlanmoqda</title>
-
-  <!-- Telegram Mini App -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🐰 Rabbit Game</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
-  <!-- HAMMA O‘YIN SHU KONTEYNER ICHIDA -->
-  <div id="app">
+<div class="app">
 
-    <h2>🐰 Quyoncha qishga tayyorlanmoqda</h2>
+  <h1>🐰 Rabbit Game</h1>
 
-    <!-- O‘YIN MAYDONI -->
-    <div id="game-board"></div>
+  <div id="game-board"></div>
 
-    <!-- BOSHQARUV -->
-    <div class="controls">
-      <button id="startBtn">▶️ O‘yinni boshlash</button>
-      <button id="wheelBtn" disabled>🎡 Omad barabanini aylantirish</button>
-    </div>
-
-    <!-- KUBIK DOIRA -->
-    <div id="dice-btn" class="dice-disabled">
-      🎲
-    </div>
-
-    <!-- MA’LUMOT -->
-    <p id="info">Avval o‘yinni boshlang</p>
-
-    <!-- KUBIK NATIJA -->
-    <div id="dice-display">🎲</div>
-
+  <div class="controls">
+    <button id="startBtn">START</button>
+    <button id="wheelBtn">🎡 BARABAN</button>
+    <div id="dice-btn" class="dice-disabled">🎲</div>
   </div>
 
-  <!-- ===== BARABAN OVERLAY ===== -->
-  <div id="wheel-overlay" class="hidden">
-    <div id="wheel-center">
+  <div id="dice-display">0</div>
+  <div id="info">O‘yinni boshlash uchun START bosing</div>
 
-      <!-- POINTER -->
-      <div id="wheel-pointer"></div>
+</div>
 
-      <!-- AYLANADIGAN QISM -->
-      <div id="wheel-rotator">
-        <svg id="wheel" viewBox="0 0 300 300">
-          <g id="slices"></g>
+<!-- WHEEL OVERLAY -->
+<div id="wheel-overlay" class="hidden">
+  <svg width="300" height="300" viewBox="0 0 300 300">
+    <g id="wheel-rotator">
+      <g id="slices"></g>
+    </g>
+  </svg>
+</div>
 
-          <!-- MARKAZ -->
-          <circle cx="150" cy="150" r="30" fill="#fff" />
-          <text x="150"
-                y="150"
-                text-anchor="middle"
-                dominant-baseline="middle"
-                font-size="18">
-            🎯
-          </text>
-        </svg>
-      </div>
+<audio id="spinSound" src="spin.mp3"></audio>
+<audio id="landSound" src="land.mp3"></audio>
 
-    </div>
-  </div>
-
-  <!-- GAME LOGIC -->
-  <script src="game.js"></script>
-
-  <!-- Telegram WebApp init -->
-  <script>
-    if (window.Telegram && Telegram.WebApp) {
-      Telegram.WebApp.ready();
-      Telegram.WebApp.expand();
-    }
-  </script>
-
+<script src="game.js"></script>
 </body>
 </html>
