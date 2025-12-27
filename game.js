@@ -131,6 +131,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ========= EVENTS ========= */
   startBtn.onclick = () => {
+    
+    console.log("START BOSILDI");
     rabbitIndex = 0;
     diceTurnsLeft = 0;
     gameStarted = true;
