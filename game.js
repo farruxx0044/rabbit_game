@@ -1,236 +1,177 @@
-// ===== ELEMENTS =====
 document.addEventListener("DOMContentLoaded", () => {
-  // BUTUN KOD SHU YERDA
 
-const board = document.getElementById("game-board");
-const startBtn = document.getElementById("startBtn");
-const wheelBtn = document.getElementById("wheelBtn");
-const diceBtn = document.getElementById("dice-btn");
-const info = document.getElementById("info");
-const diceDisplay = document.getElementById("dice-display");
+  /* ========= SAFE QUERY ========= */
+  const $ = id => document.getElementById(id);
 
-const wheelOverlay = document.getElementById("wheel-overlay");
-const wheelRotator = document.getElementById("wheel-rotator");
-const slicesGroup = document.getElementById("slices");
+  const board = $("game-board");
+  const startBtn = $("startBtn");
+  const wheelBtn = $("wheelBtn");
+  const diceBtn = $("dice-btn");
+  const info = $("info");
+  const diceDisplay = $("dice-display");
 
-// ===== SOUNDS =====
-const spinSound = new Audio("spin.mp3");
-spinSound.loop = true;
+  const wheelOverlay = $("wheel-overlay");
+  const wheelRotator = $("wheel-rotator");
+  const slicesGroup = $("slices");
 
-const landSound = new Audio("land.mp3");
-landSound.volume = 0.6;
+  const spinSound = $("spinSound");
+  const landSound = $("landSound");
 
-// ===== GAME STATE =====
-const size = 8;
-const finishIndex = size * size - 1;
-
-let rabbitIndex = 0;
-let gameStarted = false;
-let isMoving = false;
-let diceTurnsLeft = 0;
-
-// ===== WHEEL DATA =====
-const wheelItems = ["1","5","6","8","10","Omadsiz","2x","4x"];
-const colors = ["#ffd966","#f4b183","#ff9999","#9ad0f5","#b6d7a8","#f4cccc","#d9b3ff","#a2c4c9"];
-
-// ===== BOARD =====
-function createBoard() {
-  board.innerHTML = "";
-  for (let i = 0; i < size * size; i++) {
-    const c = document.createElement("div");
-    c.className = "cell";
-    board.appendChild(c);
-  }
-}
-
-// ===== RABBIT DRAW =====
-function drawRabbit(isFinal = false) {
-  const cells = document.querySelectorAll(".cell");
-  cells.forEach(c => c.textContent = "");
-
-  const cell = cells[rabbitIndex];
-  cell.textContent = isFinal ? "🐰👍" : "🐰";
-
-  cell.classList.remove("rabbit-hop", "rabbit-final");
-  void cell.offsetWidth;
-
-  if (isFinal) {
-    cell.classList.add("rabbit-final");
-    showSparkle(cell);
-    landSound.currentTime = 0;
-    landSound.play();
-  } else {
-    cell.classList.add("rabbit-hop");
-  }
-}
-
-// ===== MOVE STEP BY STEP (FIXED) =====
-function moveStepByStep(steps) {
-  isMoving = true;
-  let moved = 0;
-
-  const interval = setInterval(() => {
-    if (rabbitIndex < finishIndex) {
-      rabbitIndex++;
-    }
-
-    moved++;
-
-    const isLast = moved >= steps || rabbitIndex === finishIndex;
-
-    drawRabbit(isLast);
-
-    if (isLast) {
-      clearInterval(interval);
-      isMoving = false;
-      diceTurnsLeft--; // 🔥 QADAM TUGAGANDAN KEYIN KAMAYADI
-      checkFinish();
-    }
-  }, 350);
-}
-
-// ===== FINISH =====
-function checkFinish() {
-  if (rabbitIndex === finishIndex) {
-    info.textContent = "🎉 Tabriklaymiz! Quyoncha qishga tayyor!";
-    diceBtn.classList.add("dice-disabled");
-    wheelBtn.disabled = true;
-    isMoving = false;
+  if (!board || !startBtn || !wheelBtn || !diceBtn || !info) {
+    console.error("❌ Required DOM elements missing");
     return;
   }
 
-  if (diceTurnsLeft > 0) {
-    diceBtn.classList.remove("dice-disabled");
-    info.textContent = `🎲 Qolgan kubik: ${diceTurnsLeft}`;
-  } else {
-    diceBtn.classList.add("dice-disabled");
-    wheelBtn.disabled = false;
-    info.textContent = "🎡 Barabanni aylantiring";
-  }
-}
+  /* ========= GAME STATE ========= */
+  const size = 8;
+  const finishIndex = size * size - 1;
 
-// ===== START =====
-startBtn.addEventListener("click", () => {
-  createBoard();
-  rabbitIndex = 0;
-  diceTurnsLeft = 0;
-  drawRabbit();
+  let rabbitIndex = 0;
+  let diceTurnsLeft = 0;
+  let isMoving = false;
+  let gameStarted = false;
 
-  gameStarted = true;
-  diceBtn.classList.add("dice-disabled");
-  wheelBtn.disabled = false;
-  info.textContent = "🎡 Avval barabanni aylantiring";
-});
+  /* ========= WHEEL DATA ========= */
+  const wheelItems = ["1","5","6","8","10","Omadsiz","2x","4x"];
+  const colors = ["#fde68a","#fdba74","#fca5a5","#93c5fd","#86efac","#fecaca","#d8b4fe","#a5f3fc"];
 
-// ===== DICE (DOIRA) =====
-diceBtn.addEventListener("click", () => {
-  if (!gameStarted || isMoving || diceTurnsLeft <= 0) return;
-
-  const d = Math.floor(Math.random() * 6) + 1;
-  diceDisplay.textContent = d;
-  moveStepByStep(d);
-});
-
-// ===== DRAW WHEEL =====
-function drawWheel() {
-  slicesGroup.innerHTML = "";
-  const cx = 150, cy = 150, r = 140;
-  const angle = 360 / wheelItems.length;
-
-  wheelItems.forEach((text, i) => {
-    const start = angle * i;
-    const end = start + angle;
-
-    const x1 = cx + r * Math.cos(Math.PI * start / 180);
-    const y1 = cy + r * Math.sin(Math.PI * start / 180);
-    const x2 = cx + r * Math.cos(Math.PI * end / 180);
-    const y2 = cy + r * Math.sin(Math.PI * end / 180);
-
-    const path = document.createElementNS("http://www.w3.org/2000/svg","path");
-    path.setAttribute(
-      "d",
-      `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z`
-    );
-    path.setAttribute("fill", colors[i]);
-    slicesGroup.appendChild(path);
-
-    const labelAngle = start + angle / 2;
-    const tx = cx + 85 * Math.cos(Math.PI * labelAngle / 180);
-    const ty = cy + 85 * Math.sin(Math.PI * labelAngle / 180);
-
-    const t = document.createElementNS("http://www.w3.org/2000/svg","text");
-    t.setAttribute("x", tx);
-    t.setAttribute("y", ty);
-    t.setAttribute("text-anchor", "middle");
-    t.setAttribute("font-size", "14");
-    t.textContent = text;
-    slicesGroup.appendChild(t);
-  });
-}
-drawWheel();
-
-// ===== WHEEL SPIN (FIXED LOGIC) =====
-wheelBtn.addEventListener("click", () => {
-  if (!gameStarted || isMoving) return;
-
-  wheelBtn.disabled = true;
-  diceBtn.classList.add("dice-disabled");
-
-  wheelOverlay.classList.remove("hidden");
-  spinSound.currentTime = 0;
-  spinSound.play();
-
-  const sliceDeg = 360 / wheelItems.length;
-  const spins = 5 + Math.floor(Math.random() * 3);
-  const randomOffset = Math.random() * 360;
-  const finalDeg = spins * 360 + randomOffset;
-
-  wheelRotator.style.transition = "none";
-  wheelRotator.style.transform = "rotate(0deg)";
-  wheelRotator.getBoundingClientRect();
-
-  wheelRotator.style.transition = "transform 8s cubic-bezier(.17,.67,.38,1)";
-  wheelRotator.style.transform = `rotate(${finalDeg}deg)`;
-
-  setTimeout(() => {
-    spinSound.pause();
-    wheelOverlay.classList.add("hidden");
-
-    const rotation = finalDeg % 360;
-    const index = Math.floor(((rotation + 90) % 360) / sliceDeg);
-    const value = wheelItems[index];
-
-    if (!isNaN(value)) {
-      diceTurnsLeft += parseInt(value);
-      info.textContent = `🎡 ${value} ta kubik berildi`;
-    } 
-    else if (value === "2x" || value === "4x") {
-      const m = value === "2x" ? 2 : 4;
-      diceTurnsLeft = Math.max(1, diceTurnsLeft) * m;
-      info.textContent = `✖️ ${m} barobar! Kubiklar: ${diceTurnsLeft}`;
-    } 
-    else {
-      diceTurnsLeft = 0;
-      info.textContent = "😅 Omadsiz aylanish";
+  /* ========= BOARD ========= */
+  function createBoard() {
+    board.innerHTML = "";
+    for (let i = 0; i < size * size; i++) {
+      const c = document.createElement("div");
+      c.className = "cell";
+      if (i === finishIndex) c.classList.add("finish");
+      board.appendChild(c);
     }
+    drawRabbit();
+  }
 
-    if (diceTurnsLeft > 0) {
+  function drawRabbit(final = false) {
+    const cells = document.querySelectorAll(".cell");
+    cells.forEach(c => c.textContent = "");
+    const cell = cells[rabbitIndex];
+    cell.textContent = final ? "🐰🏁" : "🐰";
+    cell.classList.remove("rabbit-hop","rabbit-final");
+    void cell.offsetWidth;
+    cell.classList.add(final ? "rabbit-final" : "rabbit-hop");
+    if (final) sparkle(cell);
+  }
+
+  function sparkle(cell) {
+    const s = document.createElement("div");
+    s.className = "sparkle";
+    s.textContent = "✨";
+    cell.appendChild(s);
+    setTimeout(() => s.remove(), 600);
+  }
+
+  /* ========= MOVE ========= */
+  function moveStep() {
+    if (isMoving || diceTurnsLeft <= 0) return;
+    isMoving = true;
+    rabbitIndex = Math.min(rabbitIndex + 1, finishIndex);
+    diceTurnsLeft--;
+    drawRabbit(rabbitIndex === finishIndex);
+    landSound?.play().catch(()=>{});
+    isMoving = false;
+    updateUI();
+  }
+
+  function updateUI() {
+    diceDisplay.textContent = diceTurnsLeft;
+    if (rabbitIndex === finishIndex) {
+      info.textContent = "🎉 G‘alaba!";
+      diceBtn.classList.add("dice-disabled");
+      wheelBtn.disabled = true;
+    } else if (diceTurnsLeft > 0) {
+      info.textContent = "🎲 Kubikni bosing";
       diceBtn.classList.remove("dice-disabled");
     } else {
+      info.textContent = "🎡 Barabanni aylantiring";
+      diceBtn.classList.add("dice-disabled");
       wheelBtn.disabled = false;
     }
+  }
 
-  }, 8000);
+  /* ========= WHEEL ========= */
+  function drawWheel() {
+    if (!slicesGroup) return;
+    slicesGroup.innerHTML = "";
+    const cx = 150, cy = 150, r = 140;
+    const slice = 360 / wheelItems.length;
+
+    wheelItems.forEach((text, i) => {
+      const start = slice * i;
+      const end = start + slice;
+
+      const x1 = cx + r * Math.cos(Math.PI * start / 180);
+      const y1 = cy + r * Math.sin(Math.PI * start / 180);
+      const x2 = cx + r * Math.cos(Math.PI * end / 180);
+      const y2 = cy + r * Math.sin(Math.PI * end / 180);
+
+      const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+      path.setAttribute("d",`M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z`);
+      path.setAttribute("fill", colors[i]);
+      slicesGroup.appendChild(path);
+
+      const labelAngle = start + slice / 2;
+      const tx = cx + 90 * Math.cos(Math.PI * labelAngle / 180);
+      const ty = cy + 90 * Math.sin(Math.PI * labelAngle / 180);
+
+      const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+      t.setAttribute("x", tx);
+      t.setAttribute("y", ty);
+      t.setAttribute("text-anchor","middle");
+      t.setAttribute("font-size","14");
+      t.textContent = text;
+      slicesGroup.appendChild(t);
+    });
+  }
+
+  /* ========= EVENTS ========= */
+  startBtn.onclick = () => {
+    rabbitIndex = 0;
+    diceTurnsLeft = 0;
+    gameStarted = true;
+    createBoard();
+    updateUI();
+  };
+
+  diceBtn.onclick = moveStep;
+
+  wheelBtn.onclick = () => {
+    if (!gameStarted) return;
+    wheelBtn.disabled = true;
+    wheelOverlay.classList.remove("hidden");
+    spinSound?.play().catch(()=>{});
+
+    const sliceDeg = 360 / wheelItems.length;
+    const spins = 5 + Math.floor(Math.random() * 3);
+    const finalDeg = spins * 360 + Math.random() * 360;
+
+    wheelRotator.style.transition = "none";
+    wheelRotator.style.transform = "rotate(0deg)";
+    wheelRotator.getBoundingClientRect();
+
+    wheelRotator.style.transition = "transform 7s cubic-bezier(.17,.67,.38,1)";
+    wheelRotator.style.transform = `rotate(${finalDeg}deg)`;
+
+    setTimeout(() => {
+      spinSound.pause();
+      wheelOverlay.classList.add("hidden");
+      const index = Math.floor(((finalDeg % 360) + 90) / sliceDeg) % wheelItems.length;
+      const val = wheelItems[index];
+
+      if (!isNaN(val)) diceTurnsLeft += +val;
+      else if (val === "2x") diceTurnsLeft = Math.max(1, diceTurnsLeft) * 2;
+      else if (val === "4x") diceTurnsLeft = Math.max(1, diceTurnsLeft) * 4;
+      else diceTurnsLeft = 0;
+
+      updateUI();
+    }, 7000);
+  };
+
+  drawWheel();
+  createBoard();
 });
-
-// ===== SPARKLE =====
-function showSparkle(cell) {
-  const s = document.createElement("div");
-  s.className = "sparkle";
-  s.textContent = "✨";
-  s.style.top = "4px";
-  s.style.right = "4px";
-  cell.style.position = "relative";
-  cell.appendChild(s);
-  setTimeout(() => s.remove(), 600);
-}
