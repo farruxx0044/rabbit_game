@@ -1,127 +1,88 @@
-body {
+* {
+  box-sizing: border-box;
   font-family: Arial, sans-serif;
-  text-align: center;
-  background: #eef6ff;
-  margin: 0;
-  padding: 10px;
 }
 
-/* ===== BOARD ===== */
+body {
+  margin: 0;
+  background: #0f172a;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.app {
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
 #game-board {
-  width: 320px;
-  height: 320px;
-  margin: 15px auto;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-  border: 3px solid #333;
-  background: #fff;
+  gap: 4px;
+  margin: 15px auto;
 }
 
 .cell {
-  border: 1px solid #aaa;
+  background: #1e293b;
+  border-radius: 6px;
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
 }
 
-/* ===== CONTROLS ===== */
-.controls button {
-  margin: 5px;
-  padding: 8px 14px;
-  font-size: 15px;
+.rabbit {
+  background: #22c55e;
 }
 
-#dice-display {
-  font-size: 40px;
-  margin: 10px;
+.finish {
+  background: #facc15;
 }
 
-/* ===== OVERLAY ===== */
-#wheel-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(5px);
+.controls {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 15px;
+}
+
+button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+#wheelBtn {
+  background: #38bdf8;
+}
+
+#startBtn {
+  background: #a855f7;
+  color: #fff;
+}
+
+#dice-btn {
+  width: 40px;
+  height: 40px;
+  background: #fb7185;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
-}
-
-#wheel-center {
-  width: 420px;
-  height: 420px;
-  position: relative; /* 👈 POINTER SHU YERGA NISBATAN */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ===== POINTER ===== */
-#wheel-pointer {
-  position: absolute;
-  top: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-bottom: 18px solid red;
-  z-index: 2000;
-}
-
-/* ===== ROTATOR (FAQAT SHU AYLANADI) ===== */
-#wheel-rotator {
-  width: 420px;
-  height: 420px;
-  transform-origin: 50% 50%;
-  will-change: transform;
-}
-
-#wheel {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.hidden {
-  display: none !important;
-}
-/* Oddiy sakrash (har bir katak uchun) */
-@keyframes hop {
-  0%   { transform: translateY(0) scale(1); }
-  40%  { transform: translateY(-12px) scale(1.05); }
-  100% { transform: translateY(0) scale(1); }
-}
-
-/* Yakuniy, sezilarli sakrash */
-@keyframes finalHop {
-  0%   { transform: translateY(0) scale(1); }
-  40%  { transform: translateY(-22px) scale(1.15); }
-  70%  { transform: translateY(0) scale(0.95); }
-  100% { transform: translateY(0) scale(1); }
-}
-
-.rabbit-hop {
-  animation: hop 300ms ease-out;
-}
-
-.rabbit-final {
-  animation: finalHop 500ms cubic-bezier(.17,.67,.38,1);
-}
-
-@keyframes sparkle {
-  0%   { opacity: 0; transform: scale(0.5); }
-  50%  { opacity: 1; transform: scale(1.2); }
-  100% { opacity: 0; transform: scale(1); }
-}
-
-.sparkle {
-  position: absolute;
   font-size: 20px;
-  animation: sparkle 600ms ease-out forwards;
-  pointer-events: none;
+}
+
+#info {
+  margin-top: 10px;
+  font-size: 14px;
 }
