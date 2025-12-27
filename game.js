@@ -1,15 +1,17 @@
 // ===== ELEMENTS =====
-const board = document.getElementById("game-board");
-const startBtn = document.getElementById("startBtn");
-const wheelBtn = document.getElementById("wheelBtn");
-const diceBtn = document.getElementById("dice-btn");
-const info = document.getElementById("info");
-const diceDisplay = document.getElementById("dice-display");
+document.addEventListener("DOMContentLoaded", () => {
 
-const wheelOverlay = document.getElementById("wheel-overlay");
-const wheelRotator = document.getElementById("wheel-rotator");
-const slicesGroup = document.getElementById("slices");
+  const board = document.getElementById("game-board");
+  const startBtn = document.getElementById("startBtn");
+  const wheelBtn = document.getElementById("wheelBtn");
+  const diceBtn = document.getElementById("dice-btn");
+  const info = document.getElementById("info");
 
+  const spinSound = document.getElementById("spinSound");
+  const landSound = document.getElementById("landSound");
+
+  const size = 8;
+  const finishIndex = size * size - 1;
 // ===== SOUNDS =====
 const spinSound = new Audio("spin.mp3");
 spinSound.loop = true;
@@ -25,6 +27,8 @@ let rabbitIndex = 0;
 let gameStarted = false;
 let isMoving = false;
 let diceTurnsLeft = 0;
+
+
 
 // ===== WHEEL DATA =====
 const wheelItems = ["1","5","6","8","10","Omadsiz","2x","4x"];
