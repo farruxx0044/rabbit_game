@@ -61,28 +61,28 @@ function drawRabbit(isFinal = false) {
   }
 }
 
-// ===== MOVE STEP BY STEP =====
+// ===== MOVE STEP BY STEP (FIXED) =====
 function moveStepByStep(steps) {
   isMoving = true;
   let moved = 0;
 
   const interval = setInterval(() => {
-    const isLastStep = moved === steps - 1;
-
     if (rabbitIndex < finishIndex) {
       rabbitIndex++;
     }
 
-    if (isLastStep) {
-      drawRabbit(true);
+    moved++;
+
+    const isLast = moved >= steps || rabbitIndex === finishIndex;
+
+    drawRabbit(isLast);
+
+    if (isLast) {
       clearInterval(interval);
       isMoving = false;
+      diceTurnsLeft--; // 🔥 QADAM TUGAGANDAN KEYIN KAMAYADI
       checkFinish();
-      return;
     }
-
-    drawRabbit(false);
-    moved++;
   }, 350);
 }
 
@@ -92,11 +92,18 @@ function checkFinish() {
     info.textContent = "🎉 Tabriklaymiz! Quyoncha qishga tayyor!";
     diceBtn.classList.add("dice-disabled");
     wheelBtn.disabled = true;
+    isMoving = false;
     return;
   }
 
-  diceBtn.classList.remove("dice-disabled");
-  wheelBtn.disabled = false;
+  if (diceTurnsLeft > 0) {
+    diceBtn.classList.remove("dice-disabled");
+    info.textContent = `🎲 Qolgan kubik: ${diceTurnsLeft}`;
+  } else {
+    diceBtn.classList.add("dice-disabled");
+    wheelBtn.disabled = false;
+    info.textContent = "🎡 Barabanni aylantiring";
+  }
 }
 
 // ===== START =====
@@ -114,21 +121,11 @@ startBtn.addEventListener("click", () => {
 
 // ===== DICE (DOIRA) =====
 diceBtn.addEventListener("click", () => {
-  if (!gameStarted || isMoving) return;
-  if (diceTurnsLeft <= 0) return;
+  if (!gameStarted || isMoving || diceTurnsLeft <= 0) return;
 
-  diceTurnsLeft--;
   const d = Math.floor(Math.random() * 6) + 1;
   diceDisplay.textContent = d;
-
-  info.textContent = `🎲 Qolgan kubik: ${diceTurnsLeft}`;
   moveStepByStep(d);
-
-  if (diceTurnsLeft === 0) {
-    diceBtn.classList.add("dice-disabled");
-    wheelBtn.disabled = false;
-    info.textContent = "🎡 Yana barabanni aylantiring";
-  }
 });
 
 // ===== DRAW WHEEL =====
@@ -169,7 +166,7 @@ function drawWheel() {
 }
 drawWheel();
 
-// ===== WHEEL SPIN =====
+// ===== WHEEL SPIN (FIXED LOGIC) =====
 wheelBtn.addEventListener("click", () => {
   if (!gameStarted || isMoving) return;
 
@@ -189,7 +186,7 @@ wheelBtn.addEventListener("click", () => {
   wheelRotator.style.transform = "rotate(0deg)";
   wheelRotator.getBoundingClientRect();
 
-  wheelRotator.style.transition = "transform 9s cubic-bezier(.17,.67,.38,1)";
+  wheelRotator.style.transition = "transform 8s cubic-bezier(.17,.67,.38,1)";
   wheelRotator.style.transform = `rotate(${finalDeg}deg)`;
 
   setTimeout(() => {
@@ -197,26 +194,30 @@ wheelBtn.addEventListener("click", () => {
     wheelOverlay.classList.add("hidden");
 
     const rotation = finalDeg % 360;
-    const corrected = (rotation + 90) % 360;
-    const index = Math.floor((360 - corrected) / sliceDeg) % wheelItems.length;
+    const index = Math.floor(((rotation + 90) % 360) / sliceDeg);
     const value = wheelItems[index];
 
     if (!isNaN(value)) {
       diceTurnsLeft += parseInt(value);
       info.textContent = `🎡 ${value} ta kubik berildi`;
-    } else if (value === "2x" || value === "4x") {
+    } 
+    else if (value === "2x" || value === "4x") {
       const m = value === "2x" ? 2 : 4;
-      diceTurnsLeft *= m;
+      diceTurnsLeft = Math.max(1, diceTurnsLeft) * m;
       info.textContent = `✖️ ${m} barobar! Kubiklar: ${diceTurnsLeft}`;
-    } else {
+    } 
+    else {
+      diceTurnsLeft = 0;
       info.textContent = "😅 Omadsiz aylanish";
     }
 
     if (diceTurnsLeft > 0) {
       diceBtn.classList.remove("dice-disabled");
+    } else {
+      wheelBtn.disabled = false;
     }
 
-  }, 9000);
+  }, 8000);
 });
 
 // ===== SPARKLE =====
